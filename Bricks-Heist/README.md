@@ -1,20 +1,25 @@
-TryHack3M: Bricks Heist — Write‑Up
+# TryHack3M: Bricks Heist — Write-Up
 
-Platform: TryHackMe
-Difficulty: Easy–Medium
-Category: Web Exploitation, Incident Analysis
-Status: Completed
+**Platform:** TryHackMe  
+**Difficulty:** Easy–Medium  
+**Category:** Web Exploitation, Incident Analysis  
+**Status:** Completed
 
-Overview
+---
 
-This room focuses on exploiting a vulnerable WordPress installation, gaining remote code execution, and performing basic system investigation to identify malicious activity (crypto‑mining). The challenge simulates a compromised web server scenario where post‑exploitation analysis is required.
+## Overview
 
-Enumeration
+This room focuses on exploiting a vulnerable WordPress installation, gaining remote code execution, and performing basic system investigation to identify malicious activity (crypto-mining).  
+The challenge simulates a compromised web server scenario where post-exploitation analysis is required.
+
+---
+
+## Enumeration
 
 Initial reconnaissance was performed using Nmap to identify exposed services:
 
+```bash
 nmap -sC -sV -oN nmap.txt bricks.thm
-
 
 Key findings:
 
@@ -26,13 +31,11 @@ Key findings:
 
 3306/tcp – MySQL (no remote access)
 
-The HTTPS service was hosting a WordPress site. Basic inspection and directory checks confirmed /wp-admin and typical WordPress structure.
-
 Web Exploitation (WordPress RCE)
 
-Further enumeration indicated the WordPress instance was vulnerable to CVE‑2024‑25600, allowing remote code execution via a vulnerable component.
+Further enumeration indicated the WordPress instance was vulnerable to CVE-2024-25600, allowing remote code execution via a vulnerable component.
 
-A public proof‑of‑concept exploit was used to test the vulnerability, resulting in command execution on the target server.
+A public proof-of-concept exploit was used to test the vulnerability:
 
 python3 exploit.py -u https://bricks.thm
 
@@ -60,28 +63,23 @@ THM{fl46_650c844110baced87e1606453b93f22a}
 
 Process & Service Enumeration
 
-To identify suspicious activity, running services were listed:
+Running services were listed:
 
 systemctl list-units --type=service --state=running
 
 
-One service stood out due to unusual naming and behavior. Inspecting the service revealed a custom binary running from a non‑standard directory.
-
-Associated files were located under:
+One service stood out due to unusual naming and behavior. Inspecting the service revealed a custom binary running from a non-standard directory:
 
 /lib/NetworkManager/
 
 Log Analysis & Malware Identification
 
 Inside the directory, a configuration/log file named inet.conf was found.
-The contents indicated repeated execution consistent with crypto‑mining behavior.
+The contents indicated repeated execution consistent with crypto-mining behavior.
 
 An encoded identifier inside the file was decoded, revealing a Bitcoin wallet address used by the miner.
 
 Bitcoin Wallet
-
-Extracted wallet address:
-
 bc1qyk79fcp9hd5kreprce89tkh4wrtl8avt4l67qa
 
 
@@ -95,7 +93,7 @@ Key Takeaways
 
 WordPress vulnerabilities remain a common initial access vector
 
-Always enumerate running services post‑exploitation
+Always enumerate running services post-exploitation
 
 Log files often reveal more than binaries
 
@@ -111,4 +109,4 @@ Linux service & process analysis
 
 Log inspection
 
-Threat intelligence correlation
+Threat intelligence correlaretion
